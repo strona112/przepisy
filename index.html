@@ -2,476 +2,259 @@
 <html lang="pl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Przepisy — wyszukiwarka</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moje Przepisy 🍰</title>
+  <meta name="theme-color" content="#f9fafb" />
+  <link rel="manifest" href="manifest.json" />
   <style>
-    :root{
-      --bg:#f7f7f8;
-      --card:#ffffff;
-      --accent:#2b7cff;
-      --muted:#6b7280;
+    :root {
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --accent: #2b7cff;
+      --text: #111827;
+      --muted: #6b7280;
+      --radius: 12px;
     }
-    body{
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      margin:0;
-      background:var(--bg);
-      color:#111827;
-      padding:28px;
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      padding: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
-    .container{
-      max-width:980px;
-      margin:0 auto;
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
     }
-    header{
-      display:flex;
-      gap:16px;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom:18px;
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+      text-align: center;
     }
-    h1{font-size:20px;margin:0}
-    .searchBox{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      width:100%;
-      margin-top:12px;
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin: 0;
     }
-    input[type="search"]{
-      flex:1;
-      padding:10px 12px;
-      border-radius:8px;
-      border:1px solid #e5e7eb;
-      font-size:16px;
-      box-shadow:0 1px 2px rgba(16,24,40,0.03);
+    .meta {
+      font-size: 0.9rem;
+      color: var(--muted);
     }
-    .controls{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      margin-left:12px;
+    .searchBox {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
     }
-    button{
-      padding:8px 12px;
-      border-radius:8px;
-      border:1px solid #e5e7eb;
-      background:var(--card);
-      cursor:pointer;
+    input[type="search"] {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      border: 1px solid #e5e7eb;
+      font-size: 1rem;
+      background: var(--card);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: border 0.2s, box-shadow 0.2s;
     }
-    .meta{
-      margin:12px 0 10px;
-      color:var(--muted);
-      font-size:14px;
+    input[type="search"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(43,124,255,0.15);
     }
-    .list{
-      background:var(--card);
-      border-radius:10px;
-      padding:10px;
-      box-shadow:0 6px 18px rgba(14,20,30,0.04);
-      max-height:66vh;
-      overflow:auto;
+    .controls {
+      display: flex;
+      gap: 8px;
     }
-    .item{
-      display:flex;
-      gap:12px;
-      padding:8px 10px;
-      border-radius:8px;
-      align-items:flex-start;
-      border-bottom:1px dashed #f1f5f9;
+    button {
+      flex-shrink: 0;
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      border: 1px solid #e5e7eb;
+      background: var(--card);
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background 0.2s, transform 0.1s;
     }
-    .item:last-child{border-bottom:0}
-    .num{
-      min-width:46px;
-      background:#f3f4f6;
-      color:#111827;
-      text-align:center;
-      padding:6px 8px;
-      border-radius:6px;
-      font-weight:600;
+    button:hover { background: #f3f4f6; }
+    button:active { transform: scale(0.97); }
+    #info { margin-bottom: 10px; color: var(--muted); font-size: 0.9rem; text-align: center; }
+    .list {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+      overflow-y: auto;
+      max-height: 70vh;
+      scroll-behavior: smooth;
     }
-    .title{
-      flex:1;
-      word-break:break-word;
+    .item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px dashed #e5e7eb;
+      transition: background 0.2s;
+      animation: fadeIn 0.2s ease-in;
     }
-    .noresults{
-      padding:18px;
-      text-align:center;
-      color:var(--muted);
+    .item:hover { background: #f9fafb; }
+    .item:last-child { border-bottom: none; }
+    .num {
+      background: #eef2ff;
+      color: var(--accent);
+      border-radius: 8px;
+      font-weight: 600;
+      padding: 6px 10px;
+      min-width: 40px;
+      text-align: center;
+      font-size: 0.9rem;
     }
-    footer{
-      margin-top:14px;
-      color:var(--muted);
-      font-size:13px;
-    }
-    @media (max-width:560px){
-      .num{min-width:40px;font-size:13px}
-      input[type="search"]{font-size:15px}
+    .title { flex: 1; word-break: break-word; }
+    .noresults { text-align: center; padding: 20px; color: var(--muted); }
+    footer { margin-top: 20px; text-align: center; font-size: 0.85rem; color: var(--muted); }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(4px); } to { opacity:1; transform: translateY(0); } }
+    @media (max-width:600px) {
+      body { padding: 12px; }
+      header h1 { font-size: 1.3rem; }
+      button { padding: 10px; font-size: 0.9rem; }
+      input[type="search"] { font-size: 1rem; }
+      .num { min-width: 36px; padding: 5px 8px; font-size: 0.85rem; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <div>
-        <h1>Moja lista przepisów</h1>
-        <div class="meta">240 pozycji — wyszukuj fragment nazwy (np. <em>makowiec</em>, <em>krolewicz</em>)</div>
-      </div>
-      <div style="min-width:240px;text-align:right;color:var(--muted)">Plik lokalny — działa offline</div>
+      <h1>🍰 Moje Przepisy</h1>
+      <div class="meta">240 pozycji — wyszukuj fragment nazwy (np. <em>makowiec</em>, <em>krolewicz</em>)</div>
     </header>
 
     <div class="searchBox">
-      <input id="search" type="search" placeholder="Wyszukaj przepis (np. makowiec, placek, krolewicz)..." autocomplete="off" />
+      <input id="search" type="search" placeholder="Wyszukaj przepis..." autocomplete="off" />
       <div class="controls">
-        <button id="clearBtn" title="Wyczyść">Wyczyść</button>
-        <button id="showAllBtn" title="Pokaż wszystko">Pokaż wszystko</button>
+        <button id="clearBtn">Wyczyść</button>
+        <button id="showAllBtn">Pokaż wszystko</button>
       </div>
     </div>
 
     <div id="info" class="meta"></div>
-
     <div id="list" class="list" aria-live="polite"></div>
-
-    <footer>
-      Podświetlanie nie jest aktywne — wyszukiwanie ignoruje wielkość liter i polskie znaki.
-    </footer>
+    <footer>🔎 Wyszukiwanie ignoruje wielkość liter i polskie znaki</footer>
   </div>
 
   <script>
-    // --- TUTAJ wpisz listę przepisów ---
     const recipes = [
-"1 Tort bakaliowy",
-"2 tort orzechowo-bezowy",
-"3 Dyl",
-"4 Placek Pycha",
-"5 Orzechowo serowy z masą cappuccino",
-"6 Królewicz",
-"7 Sernik z olejem",
-"8 Tort orzechowo-kokosowy",
-"9 kokosowo-orzechowy bez masy",
-"10 Sernik Biały",
-"11 Placek cioci Hani",
-"12 Serowy z kawą",
-"13 Agatka",
-"14 Placek cytrynowy",
-"15 Sernik bez spodu",
-"16 Sernik w cieście kakaowym-Babci Heli",
-"17 Rernik z rosa",
-"18 Sernik z pierniczkami",
-"19 Sernik z brzoskwiniami",
-"20 Sernik kolorowy",
-"21 Tort makowo-czekoladowy",
-"22 Serowo-makowo-orzechowy",
-"23 Sernik z ananasem",
-"24 Mazurek Forys",
-"25 Placek kruchy z serem",
-"26 Sezamowo-kokosowy",
-"27 Dorotka",
-"28 Tort orzechowo-kokosowo-bezowy",
-"29 Kolorowiec",
-"30 Rolada z jabłek",
-"31 Placek delicyjny",
-"32 Placek z delicjami.",
-"33 Kruchy makowo-kokosowy",
-"34 Sernik Delicje",
-"35 Placek z wiśniami z kompotu",
-"36 Placek kokosowo-makowy",
-"37 wiśniowo-kokosowy",
-"38 Snikers",
-"39 Placek z galaretką",
-"40 placek z ptasim mleczkiem",
-"41 Orzechowo kakaowo-kokosowy",
-"42 Makowy z kremem i galaretka",
-"43 Pszczółka",
-"44 Cygański",
-"45 ciastka lukrowane",
-"46 Aspirynki Babci Heli",
-"47 Blok Mamy",
-"48 Rożki francuskie",
-"49 Amoniaczki",
-"50 Blok Reni",
-"51 Ciastka wałeczki",
-"52 Kocie oczka",
-"53 Kruche babeczki",
-"54 Rogaliki półkruche",
-"55 Paluszki stone",
-"56 Ciastka",
-"57 Ciastka z maszynki",
-"58 Masa na andrut",
-"59 Rolada jabłkowa",
-"60 Ciastka pierożki",
-"61 Orzeszki",
-"62 Kremówki",
-"63 Rogaliki siekane",
-"64 Rogaliki",
-"65 Chrust",
-"66 Aspirynki 2",
-"67 Ciastka w kakale",
-"68 Ciastka orzechowe",
-"69 Ciastka kostka kokosowa",
-"70 Blok Mamy",
-"71 Piernik",
-"72 Piernik z Lubaczowa",
-"73 Wafel Snikers",
-"74 Szarlotka Celiny",
-"75 Ciasteczka",
-"76 Grzybki",
-"77 Ptasie mleczko",
-"78 Piernik spożywczak",
-"79 Legumina z Truskawkami",
-"80 W-Z-K",
-"81 Karpatka Celiny",
-"82 Rolada Ali",
-"83 Oponki",
-"84 Szyszki",
-"85 Kakaowe kuleczki",
-"86 Blok Danusi",
-"87 CHLEB",
-"88 Keks",
-"89 Masa andrutowa",
-"90 Masa na andrut z Galaretką",
-"91 Migdałowiec",
-"92 Masa czekoladowa",
-"93 Masa orzechowa",
-"94 Krem waniliowy",
-"95 LUKRY",
-"96 Polewa czekoladowa",
-"97 Sernik z brzoskwiniami",
-"98 Placek na waflu z orzechami",
-"99 Placek CUDO",
-"100 Jawor",
-"101 Metrowiec",
-"102 Murzynek",
-"103 Placek p. Stasi",
-"104 Sernik gotowany",
-"105 Łaciatek",
-"106 Snikers Mamy",
-"107 Metrowiec owocowy",
-"108 Wielosmakowy z pomarańczą",
-"109 Tort migdałowy-Ali",
-"110 Snikers Ali",
-"111 Marcepanek",
-"112 Makowiec Królewski",
-"113 Tort znakomity",
-"114 Placek serowo-makowy z kruszonką",
-"115 Placek tortowy",
-"116 Placek czekoladowy",
-"117 Tort Prezydent",
-"118 Placek ananasowy",
-"119 Bajaderka",
-"120 Niebo w gębie",
-"121 Fale Dunaju",
-"122 PIJAK",
-"123 Pijak",
-"124 Pijak",
-"125 Pijany Izydor",
-"126 Dziwak",
-"127 Placek z delicjami",
-"128 Placek ścierany",
-"129 Sernik z wiśniami",
-"130 Sernik na zimno",
-"131 Placek z zasmażką",
-"132 Szarlotka",
-"133 Zebra",
-"134 Makowiec z pianą",
-"135 Bawole oczy",
-"136 Sernik z roladkami Bronio",
-"137 8-Marca",
-"138 Placek z płatków owsianych",
-"139 Placek bezowy",
-"140 Sernik Tortowy",
-"141 Torcik serowy",
-"142 Kruchy z wiśniami",
-"143 Pychotka",
-"144 Biszkopt z galaretką",
-"145 Placek z batonami Ikar",
-"146 Sernik z góry",
-"147 Biszkopt z truskawkami",
-"148 Biszkopt z rodzynkami",
-"149 Placek z rabarbarem",
-"150 Ucierany z rabarbarem",
-"151 Placek z 2 masami",
-"152 PIGA",
-"153 Rolada makowa",
-"154 Rolada Ani Barszczak",
-"155 Babka orzechowa",
-"156 Babka marmurkowa",
-"157 Piaskowiec z owocami",
-"158 Babka jasna",
-"159 Babka z awokadem",
-"160 Babka cytrynowa",
-"161 Babka śnieżna",
-"162 Babka gotowana",
-"163 Placek z jabłek",
-"164 Placek ze śliwek",
-"165 DESER",
-"166 KANTAŁKA",
-"167 Placek królewski",
-"168 Ucierany ze śliwkami",
-"169 Ciasto z kokosem i orzechami",
-"170 Sernik w kratkę",
-"171 Paluszki półfrancuskie",
-"172 Placek z wiśniami i kokosem",
-"173 Placek nadzwyczajny",
-"174 Placek pycha z orzechami",
-"175 Placek deserowy z mleka w puszce",
-"176 Tort z ananasem",
-"177 Placek z jabłkami",
-"178 Placek w kropki",
-"179 Placek serowo-orzechowy",
-"180 Orzechowy w cieście francuskim",
-"181 Biszkopt z owocami",
-"182 Pychotka ALI",
-"183 Pychotka",
-"184 Pychotka spożywczak",
-"185 Placek orzechowy z masą orzechową",
-"186 Ciasto parzone",
-"187 Placek amoniakowy",
-"188 Sernik z mlekiem",
-"189 Placek kakaowo-czekoladowy",
-"190 TORT",
-"191 Ciasto orzechowe",
-"192 Orzechowiec",
-"193 Sernik ucierany",
-"194 Sernik z owocami",
-"195 Placek makowo-jabłkowy",
-"196 Trojaczek cytrynowy",
-"197 Trójkolorowy metrowiec",
-"198 Wafel kokosowo-kawowy",
-"199 PIZZA-Spożywczak",
-"200 Drożdżówki spożywczak",
-"201 Rolada do barszczu",
-"202 Pączki Celiny",
-"203 Prince Polo",
-"204 Placek cappuccino",
-"205 Sernik od Hanki",
-"206 Dziwak",
-"207 Żołądek",
-"208 Makowy z dołu",
-"209 MIODOWY",
-"210 Królewiec Makowieckiej",
-"211 Placek czekoladowy z rodzynkami",
-"212 Marcepanek",
-"213 NUTELLA",
-"214 Placek w kupki z serem",
-"215 Makaronikowy",
-"216 Placek z ptasim mleczkiem",
-"217 Tort z winogronem",
-"218 Kora orzechowa",
-"219 Placek kruszony",
-"220 Usta Adama",
-"221 Pomarańczowiec",
-"222 Wenus (serowy z dżemem brzoskwini",
-"223 Wafel z delicjami",
-"224 Placek KRÓWKA",
-"225 Orzechowy z bakaliami i masą zasma",
-"226 LEON",
-"227 Serowa Zosia",
-"228 Serowy z kulkami orzechowymi",
-"229 Jabłecznik z serem od Agaty",
-"230 Jabłecznik Krystyny",
-"231 Placek bakaliowy (śliwkowy)",
-"232 Katarzynka",
-"233 Wafel z galaretką",
-"234 Bananowy",
-"235 Placek od Kostura",
-"236 Sernik od Ali",
-"237 Porzeczka",
-"238 Francuska czekolada (Basi)",
-"239 Makowiec Japoński",
-"240 Piernikowy smak"
+      "1 Tort bakaliowy","2 tort orzechowo-bezowy","3 Dyl","4 Placek Pycha",
+      "5 Orzechowo serowy z masą cappuccino","6 Królewicz","7 Sernik z olejem",
+      "8 Tort orzechowo-kokosowy","9 kokosowo-orzechowy bez masy","10 Sernik Biały",
+      "11 Placek cioci Hani","12 Serowy z kawą","13 Agatka","14 Placek cytrynowy",
+      "15 Sernik bez spodu","16 Sernik w cieście kakaowym-Babci Heli","17 Rernik z rosa",
+      "18 Sernik z pierniczkami","19 Sernik z brzoskwiniami","20 Sernik kolorowy",
+      "21 Tort makowo-czekoladowy","22 Serowo-makowo-orzechowy","23 Sernik z ananasem",
+      "24 Mazurek Forys","25 Placek kruchy z serem","26 Sezamowo-kokosowy","27 Dorotka",
+      "28 Tort orzechowo-kokosowo-bezowy","29 Kolorowiec","30 Rolada z jabłek",
+      "31 Placek delicyjny","32 Placek z delicjami.","33 Kruchy makowo-kokosowy",
+      "34 Sernik Delicje","35 Placek z wiśniami z kompotu","36 Placek kokosowo-makowy",
+      "37 wiśniowo-kokosowy","38 Snikers","39 Placek z galaretką","40 placek z ptasim mleczkiem",
+      "41 Orzechowo kakaowo-kokosowy","42 Makowy z kremem i galaretka","43 Pszczółka","44 Cygański",
+      "45 ciastka lukrowane","46 Aspirynki Babci Heli","47 Blok Mamy","48 Rożki francuskie",
+      "49 Amoniaczki","50 Blok Reni","51 Ciastka wałeczki","52 Kocie oczka","53 Kruche babeczki",
+      "54 Rogaliki półkruche","55 Paluszki stone","56 Ciastka","57 Ciastka z maszynki",
+      "58 Masa na andrut","59 Rolada jabłkowa","60 Ciastka pierożki","61 Orzeszki","62 Kremówki",
+      "63 Rogaliki siekane","64 Rogaliki","65 Chrust","66 Aspirynki 2","67 Ciastka w kakale",
+      "68 Ciastka orzechowe","69 Ciastka kostka kokosowa","70 Blok Mamy","71 Piernik",
+      "72 Piernik z Lubaczowa","73 Wafel Snikers","74 Szarlotka Celiny","75 Ciasteczka",
+      "76 Grzybki","77 Ptasie mleczko","78 Piernik spożywczak","79 Legumina z Truskawkami",
+      "80 W-Z-K","81 Karpatka Celiny","82 Rolada Ali","83 Oponki","84 Szyszki","85 Kakaowe kuleczki",
+      "86 Blok Danusi","87 CHLEB","88 Keks","89 Masa andrutowa","90 Masa na andrut z Galaretką",
+      "91 Migdałowiec","92 Masa czekoladowa","93 Masa orzechowa","94 Krem waniliowy",
+      "95 LUKRY","96 Polewa czekoladowa","97 Sernik z brzoskwiniami","98 Placek na waflu z orzechami",
+      "99 Placek CUDO","100 Jawor","101 Metrowiec","102 Murzynek","103 Placek p. Stasi",
+      "104 Sernik gotowany","105 Łaciatek","106 Snikers Mamy","107 Metrowiec owocowy",
+      "108 Wielosmakowy z pomarańczą","109 Tort migdałowy-Ali","110 Snikers Ali",
+      "111 Marcepanek","112 Makowiec Królewski","113 Tort znakomity","114 Placek serowo-makowy z kruszonką",
+      "115 Placek tortowy","116 Placek czekoladowy","117 Tort Prezydent","118 Placek ananasowy",
+      "119 Bajaderka","120 Niebo w gębie","121 Fale Dunaju","122 PIJAK","123 Pijak","124 Pijak",
+      "125 Pijany Izydor","126 Dziwak","127 Placek z delicjami","128 Placek ścierany","129 Sernik z wiśniami",
+      "130 Sernik na zimno","131 Placek z zasmażką","132 Szarlotka","133 Zebra","134 Makowiec z pianą",
+      "135 Bawole oczy","136 Sernik z roladkami Bronio","137 8-Marca","138 Placek z płatków owsianych",
+      "139 Placek bezowy","140 Sernik Tortowy","141 Torcik serowy","142 Kruchy z wiśniami","143 Pychotka",
+      "144 Biszkopt z galaretką","145 Placek z batonami Ikar","146 Sernik z góry","147 Biszkopt z truskawkami",
+      "148 Biszkopt z rodzynkami","149 Placek z rabarbarem","150 Ucierany z rabarbarem","151 Placek z 2 masami",
+      "152 PIGA","153 Rolada makowa","154 Rolada Ani Barszczak","155 Babka orzechowa","156 Babka marmurkowa",
+      "157 Piaskowiec z owocami","158 Babka jasna","159 Babka z awokadem","160 Babka cytrynowa","161 Babka śnieżna",
+      "162 Babka gotowana","163 Placek z jabłek","164 Placek ze śliwek","165 DESER","166 KANTAŁKA",
+      "167 Placek królewski","168 Ucierany ze śliwkami","169 Ciasto z kokosem i orzechami","170 Sernik w kratkę",
+      "171 Paluszki półfrancuskie","172 Placek z wiśniami i kokosem","173 Placek nadzwyczajny","174 Placek pycha z orzechami",
+      "175 Placek deserowy z mleka w puszce","176 Tort z ananasem","177 Placek z jabłkami","178 Placek w kropki",
+      "179 Placek serowo-orzechowy","180 Orzechowy w cieście francuskim","181 Biszkopt z owocami","182 Pychotka ALI",
+      "183 Pychotka","184 Pychotka spożywczak","185 Placek orzechowy z masą orzechową","186 Ciasto parzone",
+      "187 Placek amoniakowy","188 Sernik z mlekiem","189 Placek kakaowo-czekoladowy","190 TORT",
+      "191 Ciasto orzechowe","192 Orzechowiec","193 Sernik ucierany","194 Sernik z owocami","195 Placek makowo-jabłkowy",
+      "196 Trojaczek cytrynowy","197 Trójkolorowy metrowiec","198 Wafel kokosowo-kawowy","199 PIZZA-Spożywczak",
+      "200 Drożdżówki spożywczak","201 Rolada do barszczu","202 Pączki Celiny","203 Prince Polo",
+      "204 Placek cappuccino","205 Sernik od Hanki","206 Dziwak","207 Żołądek","208 Makowy z dołu",
+      "209 MIODOWY","210 Królewiec Makowieckiej","211 Placek czekoladowy z rodzynkami","212 Marcepanek",
+      "213 NUTELLA","214 Placek w kupki z serem","215 Makaronikowy","216 Placek z ptasim mleczkiem",
+      "217 Tort z winogronem","218 Kora orzechowa","219 Placek kruszony","220 Usta Adama",
+      "221 Pomarańczowiec","222 Wenus (serowy z dżemem brzoskwini","223 Wafel z delicjami",
+      "224 Placek KRÓWKA","225 Orzechowy z bakaliami i masą zasma","226 LEON","227 Serowa Zosia",
+      "228 Serowy z kulkami orzechowymi","229 Jabłecznik z serem od Agaty","230 Jabłecznik Krystyny",
+      "231 Placek bakaliowy (śliwkowy)","232 Katarzynka","233 Wafel z galaretką","234 Bananowy",
+      "235 Placek od Kostura","236 Sernik od Ali","237 Porzeczka","238 Francuska czekolada (Basi)",
+      "239 Makowiec Japoński","240 Piernikowy smak"
     ];
 
-    // Normalizacja: usuwa znaki diakrytyczne i zmniejsza do małych liter
-    function normalizeStr(s){
-      if(!s) return "";
-      return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-    }
-
+    function normalizeStr(s) { return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); }
     const listEl = document.getElementById('list');
     const searchEl = document.getElementById('search');
     const infoEl = document.getElementById('info');
     const clearBtn = document.getElementById('clearBtn');
     const showAllBtn = document.getElementById('showAllBtn');
-
-    // Precompute normalized forms for speed
-    const normalized = recipes.map(r => normalizeStr(r));
+    const normalized = recipes.map(r=>normalizeStr(r));
 
     function render(items){
-      listEl.innerHTML = '';
-      if(items.length === 0){
-        listEl.innerHTML = '<div class="noresults">Brak wyników.</div>';
-        infoEl.textContent = 'Znaleziono 0 wyników';
-        return;
-      }
-      const frag = document.createDocumentFragment();
-      items.forEach(obj => {
-        const div = document.createElement('div');
-        div.className = 'item';
-        const num = document.createElement('div');
-        num.className = 'num';
-        num.textContent = obj.index;
-        const title = document.createElement('div');
-        title.className = 'title';
-        title.textContent = obj.text;
-        div.appendChild(num);
-        div.appendChild(title);
+      listEl.innerHTML='';
+      if(!items.length){ listEl.innerHTML='<div class="noresults">Brak wyników.</div>'; infoEl.textContent='Znaleziono 0 wyników'; return; }
+      const frag=document.createDocumentFragment();
+      items.forEach(obj=>{
+        const div=document.createElement('div');
+        div.className='item';
+        div.innerHTML=`<div class="num">${obj.index}</div><div class="title">${obj.text}</div>`;
         frag.appendChild(div);
       });
       listEl.appendChild(frag);
-      infoEl.textContent = `Znaleziono ${items.length} ${items.length===1? 'wynik':'wyników'}`;
+      infoEl.textContent=`Znaleziono ${items.length} ${items.length===1?'wynik':'wyników'}`;
     }
 
-    // initial render: full list
     function renderAll(){
-      const all = recipes.map((t, i) => ({index: i+1, text: t.replace(/^\d+\s*/, '')}));
+      const all=recipes.map((t,i)=>({index:i+1,text:t.replace(/^\d+\s*/,'')}));
       render(all);
-      infoEl.textContent = `Wszystkie pozycje: ${all.length}`;
+      infoEl.textContent=`Wszystkie pozycje: ${all.length}`;
     }
 
     function search(q){
-      const qn = normalizeStr(q.trim());
-      if(qn === '') { renderAll(); return; }
-      const results = [];
+      const qn=normalizeStr(q.trim());
+      if(!qn){ renderAll(); return; }
+      const results=[];
       for(let i=0;i<normalized.length;i++){
         if(normalized[i].includes(qn)){
-          // display original text without leading numeric prefix (we show number separately)
-          const originalNoNum = recipes[i].replace(/^\d+\s*/, '');
-          results.push({ index: i+1, text: originalNoNum });
+          results.push({index:i+1,text:recipes[i].replace(/^\d+\s*/,'')});
         }
       }
       render(results);
     }
 
-    // debounce to avoid too frequent renders while typing
-    function debounce(fn, wait=150){
-      let t;
-      return function(...args){
-        clearTimeout(t);
-        t = setTimeout(()=>fn.apply(this,args), wait);
-      }
-    }
-
-    const debouncedSearch = debounce((e) => search(e.target.value), 80);
-
-    searchEl.addEventListener('input', debouncedSearch);
-    clearBtn.addEventListener('click', () => { searchEl.value = ''; searchEl.focus(); renderAll(); });
-    showAllBtn.addEventListener('click', () => { searchEl.value = ''; searchEl.focus(); renderAll(); });
-
-    // render on load
+    function debounce(fn,wait=150){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args),wait); }; }
+    const debouncedSearch=debounce(e=>search(e.target.value),80);
+    searchEl.addEventListener('input',debouncedSearch);
+    clearBtn.addEventListener('click',()=>{searchEl.value='';renderAll(); searchEl.focus();});
+    showAllBtn.addEventListener('click',()=>{searchEl.value='';renderAll(); searchEl.focus();});
+    searchEl.addEventListener('keydown',e=>{if(e.key==='Enter') listEl.scrollTo({top:0,behavior:'smooth'});});
     renderAll();
-
-    // keyboard: Enter focuses list top
-    searchEl.addEventListener('keydown', (e) => {
-      if(e.key === 'Enter'){
-        listEl.scrollTo({top:0, behavior:'smooth'});
-      }
-    });
-
-    // accessibility: announce updates
-    const observer = new MutationObserver(() => {
-      // keeps ARIA-live helpful for screen readers (list has aria-live)
-    });
-    observer.observe(listEl, {childList:true, subtree:true});
   </script>
 </body>
 </html>
